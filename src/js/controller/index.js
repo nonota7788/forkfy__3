@@ -20,10 +20,11 @@ elements.serach.addEventListener("submit", (e) => {
 // PAGENATION //
 elements.resultsPages.addEventListener("click", (e) => {
   const btn = e.target.closest(".btn-inline");
-
-  const nextPage = parseInt(btn.dataset.goto, 10);
-  searchView.clearSearchResults();
-  searchView.renderSearchResults(state.search.results, nextPage);
+  if (btn) {
+    const goTo = parseInt(btn.dataset.goto, 10);
+    searchView.clearSearchResults();
+    searchView.renderSearchResults(state.search.results, goTo);
+  }
 });
 
 export default state;

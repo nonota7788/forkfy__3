@@ -4,8 +4,11 @@ export const getInput = () => elements.serachField.value;
 
 export const clearInput = () => (elements.serachField.value = "");
 
-export const clearSearchResults = () =>
-  (elements.searchResultsList.innerHTML = "");
+export const clearSearchResults = () => {
+  const { searchResultsList: a, resultsPages: b } = elements;
+  a.innerHTML = "";
+  b.innerHTML = "";
+};
 
 const formatTitle = (title, limit = 17) => {
   if (title.length > limit) {
@@ -33,48 +36,41 @@ const renderRecipe = (recipe) => {
   elements.searchResultsList.insertAdjacentHTML("beforeend", html);
 };
 
-export const renderSearchResults = (results, page = 1, perPage = 10) => {
-  // 1) Render recipe lists
-  const start = (page - 1) * perPage; //
-  const end = page * perPage;
+export const renderSearchResults = (results, page = 1, resPerPage = 10) => {
+  // Rendering recipe lists
+  const start = (page - 1) * resPerPage;
+  const end = page * resPerPage;
   results.slice(start, end).forEach(renderRecipe);
 
-  // 2) Render pagenation buttons
-  clearButtons();
-  renderButtons(results.length, page, perPage);
+  // Rendering pagenaiton button
+  renderButtons(page, results.length, resPerPage);
 };
 
-const renderButtons = (numResults, page, perPage) => {
-  // 0) Calculate total number of pages
-  const totalPages = Math.ceil(numResults / perPage);
-
-  // 1) Create button according to current page
-  let buttons;
-  if (page === 1 && totalPages > 1) {
-    // 'next' button
-    buttons = createButton(page, "next");
-  } else if (page < totalPages) {
-    // 'prev' and 'next' button
-    buttons = `${createButton(page, "prev")} ${createButton(page, "next")}`;
-  } else if (page === totalPages) {
-    // 'prev' button
-    buttons = createButton(page, "prev");
+const renderButtons = (page, numResults, resPerPage) => {
+  const total = Math.ceil(numResults / resPerPage);
+  let button;
+  if (page === 1 && total > 1) {
+    // Only 'next' button
+    button = createButton(page, "next");
+  } else if (page < total) {
+    // Both 'next' and 'prev' button
+    button = `${createButton(page, "prev")} ${createButton(page, "next")}`;
+  } else if (page === total && total > 1) {
+    //　Only 'Prev' button
+    button = createButton(page, "prev");
   }
 
-  // 2) Render button into DOM
-  elements.resultsPages.insertAdjacentHTML("afterbegin", buttons);
+  elements.resultsPages.insertAdjacentHTML("beforeend", button);
 };
 
 const createButton = (page, type) => `
-        <button class="btn-inline results__btn--${type}" data-goto="${
-  type === "prev" ? page - 1 : page + 1
-}">
+      <button class="btn-inline results__btn--${type}" data-goto=${
+  type === "next" ? page + 1 : page - 1
+}>
           <svg class="search__icon">
               <use href="img/icons.svg#icon-triangle-${
-                type === "prev" ? "left" : "right"
+                type === "next" ? "right" : "left"
               }"></use>
           </svg>
-          <span>Page ${type === "prev" ? page - 1 : page + 1}</span>
-        </button>`;
-
-const clearButtons = () => (elements.resultsPages.innerHTML = "");
+          <span>Page ${type === "next" ? page + 1 : page - 1}</span>
+      </button>  `;
